@@ -25,6 +25,24 @@
         android:layout_centerHorizontal="true"
         android:text="discover" />
 
+    <Button
+        android:id="@+id/share"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="525dp"
+        android:layout_alignParentLeft="true"
+        android:text="share" />
+    <TextView
+        android:id="@+id/file_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/share"
+        android:layout_alignBottom="@+id/share"
+        android:layout_alignParentRight="true"
+        android:text="No file selected" />
+
+
     <ListView
         android:id="@+id/peerListView"
         android:layout_width="match_parent"

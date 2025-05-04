@@ -1,12 +1,15 @@
 package com.amrithshagar.landrive;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.InetAddresses;
+import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -27,6 +30,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.ParcelFileDescriptor;
+import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -49,6 +54,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -64,7 +71,7 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btnOnOff, btnDiscover, btnSend;
+    Button btnOnOff, btnDiscover, btnSend, btnShare;
     ListView listView;
     TextView readMsgBox, connectionStatus;
     EditText writeMsg;
@@ -81,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     WifiP2pDevice[] deviceArray;
 
     static final int MESSAGE_READ = 1;
+    private ParcelFileDescriptor inputPFD;
 
     Socket socket;
 
@@ -90,6 +98,9 @@ public class MainActivity extends AppCompatActivity {
 //    SendReceive sendReceive;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+//        Intent intent = new Intent(MainActivity.this, FileSelectActivity.class); //For file selector
+//        startActivity(intent);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -118,13 +129,10 @@ public class MainActivity extends AppCompatActivity {
     Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(@NonNull Message msg) {
-            switch (msg.what)
-            {
-                case MESSAGE_READ:
-                    byte[] readBuff = (byte[]) msg.obj;
-                    String tempMsg = new String(readBuff,0, msg.arg1);
-                    readMsgBox.setText(tempMsg);
-                    break;
+            if (msg.what == MESSAGE_READ) {
+                byte[] readBuff = (byte[]) msg.obj;
+                String tempMsg = new String(readBuff, 0, msg.arg1);
+                readMsgBox.setText(tempMsg);
             }
             return true;
         }
@@ -203,12 +211,20 @@ public class MainActivity extends AppCompatActivity {
 //                sendReceive.write(msg.getBytes());
             }
         });
+        btnShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestFile();
+            }
+        });
     }
 
     private void initialWork() {
         btnOnOff = (Button) findViewById(R.id.onOff);
         btnDiscover = (Button) findViewById(R.id.discover);
         btnSend = (Button) findViewById(R.id.sendButton);
+        btnShare = findViewById(R.id.share);
+
         listView = (ListView) findViewById(R.id.peerListView);
         readMsgBox = (TextView) findViewById(R.id.readMsg);
         connectionStatus = (TextView) findViewById(R.id.connectionStatus);
@@ -460,6 +476,45 @@ public class MainActivity extends AppCompatActivity {
         // handle failure: new scan did NOT succeed
         // consider using old scan results: these are the OLD results!
         List<ScanResult> results = wifiManager.getScanResults();
+    }
+
+
+
+
+    protected void requestFile(){
+        Intent requestFileIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        requestFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        requestFileIntent.setType("*/*"); // all file types
+        startActivityForResult(Intent.createChooser(requestFileIntent, "Select File"), 0);
+
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent returnIntent){
+        super.onActivityResult(requestCode, resultCode, returnIntent);
+        Uri returnUri = returnIntent.getData();
+        if (resultCode != RESULT_OK){
+            return;
+        } else {
+            try {
+                inputPFD = getContentResolver().openFileDescriptor(returnUri,"r");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Log.e("FileSelectActivity","File Not Found");
+                return;
+            }
+            if (inputPFD != null) {
+                FileDescriptor fd = inputPFD.getFileDescriptor();
+            }
+        }
+        TextView fileNameView = findViewById(R.id.file_name);
+        Cursor cursor = getContentResolver().query(returnUri, null, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            @SuppressLint("Range") String displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+            fileNameView.setText(displayName);
+            cursor.close();
+        }
+
+
     }
 }
 
