@@ -3,3 +3,14 @@ plugins {
     id 'com.android.application' version '8.9.2' apply false
     id 'com.android.library' version '8.9.2' apply false
 }
+allprojects {
+    configurations.all {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion '1.8.10' // Or downgrade all to 1.6.21 if needed
+                details.because "Avoid duplicate Kotlin stdlib versions"
+            }
+        }
+    }
+}
+

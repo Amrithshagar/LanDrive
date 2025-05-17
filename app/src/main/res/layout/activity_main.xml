@@ -33,6 +33,52 @@
         android:layout_marginTop="525dp"
         android:layout_alignParentLeft="true"
         android:text="share" />
+    <Button
+        android:id="@+id/newFolder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="400dp"
+        android:layout_alignParentLeft="true"
+        android:text="Create Folder" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    <!-- Add this near your RecyclerView -->
+
+    <LinearLayout
+        android:id="@+id/current_folder_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="380dp"
+        android:layout_marginStart="280dp"
+        android:background="@drawable/folder_background"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <ImageView
+            android:id="@+id/folder_icon"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/ic_folder" />
+
+        <TextView
+            android:id="@+id/folder_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="No folder selected"
+            android:textSize="16sp" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/file_name"
         android:layout_width="wrap_content"
@@ -74,7 +120,12 @@
         android:ems="10"
         android:inputType="textPersonName"
         android:layout_toStartOf="@+id/sendButton" />
-
+    <!-- Add to your activity_main.xml -->
+    <Button
+        android:id="@+id/btnSync"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sync Folder"/>
     <Button
         android:id="@+id/sendButton"
         android:layout_width="wrap_content"
