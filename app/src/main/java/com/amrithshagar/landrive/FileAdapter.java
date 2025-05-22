@@ -13,9 +13,15 @@ import java.util.List;
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder> {
 
     private List<FileItem> fileList;
+    private OnItemClickListener listener;
 
-    public FileAdapter(List<FileItem> fileList) {
+    public interface OnItemClickListener {
+        void onItemClick(FileItem fileItem);
+    }
+
+    public FileAdapter(List<FileItem> fileList, OnItemClickListener listener) {
         this.fileList = fileList;
+        this.listener = listener;
     }
 
     // ViewHolder inner class
@@ -40,7 +46,12 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
     public void onBindViewHolder(@NonNull FileViewHolder holder, int position) {
         FileItem fileItem = fileList.get(position);
         holder.textView.setText(fileItem.getFileName());
-        // You can also bind other info here if you add more views in the item layout
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(fileItem);
+            }
+        });
     }
 
     @Override
@@ -52,41 +63,49 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
         notifyDataSetChanged();
     }
     public static class FileItem {
-        String fileName;
-        String filePath;
-        long fileSize; // optional
-        // add other fields if needed
+        private String fileName;
+        private String filePath;
+        private long fileSize;
+        private boolean isDirectory;
 
         public FileItem(String fileName, String filePath) {
             this.fileName = fileName;
             this.filePath = filePath;
         }
 
+        // Getters
         public String getFileName() {
             return fileName;
-        }
-
-        public void setFileName(String fileName) {
-            this.fileName = fileName;
         }
 
         public String getFilePath() {
             return filePath;
         }
 
-        public void setFilePath(String filePath) {
-            this.filePath = filePath;
-        }
-
         public long getFileSize() {
             return fileSize;
+        }
+
+        public boolean isDirectory() {
+            return isDirectory;
+        }
+
+        // Setters
+        public void setFileName(String fileName) {
+            this.fileName = fileName;
+        }
+
+        public void setFilePath(String filePath) {
+            this.filePath = filePath;
         }
 
         public void setFileSize(long fileSize) {
             this.fileSize = fileSize;
         }
 
-        // getters and setters
+        public void setDirectory(boolean directory) {
+            isDirectory = directory;
+        }
     }
 
 }
